@@ -1,0 +1,147 @@
+{% extends 'main_app/admin_base.html' %}
+{% load static %}
+
+{% block title %}Pending Enrollments | Hogwarts University{% endblock %}
+
+{% block content %}
+<div class="p-8">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-clipboard-list mr-3 text-gray-600"></i> Pending Enrollments
+            </h2>
+            <p class="text-gray-600">Review and manage student enrollment requests</p>
+        </div>
+    </div>
+    
+    {% if pending_enrollments %}
+    <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+        <div class="bg-gray-800 text-white px-6 py-4 flex justify-between items-center">
+            <h5 class="font-bold text-lg flex items-center">
+                <i class="fas fa-user-clock mr-2"></i> Enrollment Requests
+            </h5>
+            <div class="relative">
+                <input type="text" id="studentSearch" class="bg-gray-700 border border-gray-600 text-white placeholder-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500" placeholder="Search students...">
+                <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            <i class="fas fa-id-card mr-1"></i> Enrollment ID
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            <i class="fas fa-user mr-1"></i> Student
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            <i class="fas fa-id-badge mr-1"></i> Student ID
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            <i class="fas fa-calendar-alt mr-1"></i> Academic Year
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            <i class="fas fa-graduation-cap mr-1"></i> Year Level
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            <i class="fas fa-calendar mr-1"></i> Semester
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            <i class="fas fa-tag mr-1"></i> Type
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            <i class="fas fa-clock mr-1"></i> Date Submitted
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            <i class="fas fa-cog mr-1"></i> Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for enrollment in pending_enrollments %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ enrollment.enroll_id }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-800">
+                            {{ enrollment.stud.stud_fname }} {{ enrollment.stud.stud_lname }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {{ enrollment.stud.stud_id }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {{ enrollment.acad_year.acad_year_date }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {{ enrollment.enroll_year_lvl }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {{ enrollment.enroll_sem }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                {% if enrollment.stud_is_regular %}bg-gray-100 text-gray-800
+                                {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                {% if enrollment.stud_is_regular %}Regular{% else %}Irregular{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {{ enrollment.enroll_date|date:"M d, Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <a href="{% url 'approve_enrollment' enrollment.enroll_id %}" 
+                                   class="text-green-600 hover:text-green-800" title="Approve">
+                                    <i class="fas fa-check-circle text-lg"></i>
+                                </a>
+                                <a href="{% url 'reject_enrollment' enrollment.enroll_id %}" 
+                                   class="text-red-600 hover:text-red-800" title="Reject">
+                                    <i class="fas fa-times-circle text-lg"></i>
+                                </a>
+                                <a href="{% url 'enrollment_details' enrollment.enroll_id %}" 
+                                   class="text-blue-600 hover:text-blue-800" title="View Details">
+                                    <i class="fas fa-eye text-lg"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-gray-50 border-l-4 border-gray-500 text-gray-800 p-4 rounded-lg">
+        <div class="flex items-start">
+            <i class="fas fa-info-circle mr-2 mt-1"></i>
+            <p>No pending enrollments at this time.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Enhanced search functionality
+    document.getElementById('studentSearch').addEventListener('input', function() {
+        const searchValue = this.value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            let rowMatches = false;
+            
+            cells.forEach(cell => {
+                if (cell.textContent.toLowerCase().includes(searchValue)) {
+                    rowMatches = true;
+                }
+            });
+            
+            row.style.display = rowMatches ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

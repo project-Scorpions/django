@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hogwarts University - Login</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .btn-login {
+            transition: all 0.3s ease;
+        }
+        .btn-login:hover {
+            background-color: #4b5563; /* gray-600 */
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+    <!-- Alert Messages -->
+    {% if messages %}
+    <div class="fixed top-0 left-1/2 transform -translate-x-1/2 w-full max-w-md z-50">
+        {% for message in messages %}
+        <div class="alert bg-red-600 text-white p-4 m-3 rounded-lg shadow-lg flex justify-between items-center">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                {{ message }}
+            </div>
+            <button type="button" class="text-white hover:text-gray-200" data-dismiss="alert" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Login Form -->
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-gray-800 p-8 rounded-lg shadow-2xl border border-gray-700 max-w-md w-full">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-100 mb-2">
+                    <i class="fas fa-university text-gray-300 mr-2"></i>Hogwarts University
+                </h1>
+                <div class="w-20 h-1 bg-gray-500 mx-auto"></div>
+            </div>
+            
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div>
+                    <label for="user_id" class="block text-gray-100 mb-2">
+                        <i class="fas fa-id-card mr-2 text-gray-300"></i>ID NUMBER
+                    </label>
+                    <input type="text" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500" id="user_id" name="user_id" required>
+                </div>
+                
+                <div>
+                    <label for="dob" class="block text-gray-100 mb-2">
+                        <i class="fas fa-calendar-day mr-2 text-gray-300"></i>BIRTHDATE
+                    </label>
+                    <input type="date" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500" id="dob" name="dob" required>
+                </div>
+                
+                <button type="submit" class="btn-login w-full py-3 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-lg shadow-md flex items-center justify-center">
+                    <i class="fas fa-unlock-alt mr-2"></i> LOGIN
+                </button>
+            </form>
+
+            <div class="text-center mt-6 text-gray-200">
+                <p>Don't have an account? 
+                    <a href="{% url 'student_register' %}" class="text-gray-300 hover:text-white underline hover:no-underline font-medium">
+                        <i class="fas fa-user-plus mr-1"></i>Register here
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple dismiss for alerts
+        document.querySelectorAll('[data-dismiss="alert"]').forEach(button => {
+            button.addEventListener('click', () => {
+                button.closest('.alert').remove();
+            });
+        });
+    </script>
+</body>
+</html>

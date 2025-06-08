@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration | Hogwarts University</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .form-input {
+            transition: all 0.2s ease;
+        }
+        .form-input:focus {
+            border-color: #6b7280;
+            box-shadow: 0 0 0 2px rgba(156, 163, 175, 0.2);
+        }
+        .btn-submit {
+            transition: all 0.3s ease;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl border border-gray-200 w-full max-w-2xl overflow-hidden">
+            <div class="bg-gray-800 text-white p-6 text-center">
+                <h1 class="text-2xl font-bold flex items-center justify-center">
+                    <i class="fas fa-leaf mr-3 text-gray-300"></i> Hogwarts University
+                </h1>
+                <div class="w-24 h-1 bg-gray-400 mx-auto mt-3"></div>
+                <h2 class="text-xl font-semibold mt-4">STUDENT REGISTRATION</h2>
+            </div>
+            
+            <form method="post" class="p-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-gray-500 focus:border-gray-500" 
+                               name="fname" placeholder="First Name" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-gray-500 focus:border-gray-500" 
+                               name="lname" placeholder="Last Name" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Middle Name</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-gray-500 focus:border-gray-500" 
+                               name="mname" placeholder="Middle Name">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                        <select class="form-input w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-gray-500 focus:border-gray-500 text-gray-800" 
+                                name="gender" required>
+                            <option value="" selected disabled>Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-gray-500 focus:border-gray-500" 
+                               name="contact" placeholder="Contact Number" required>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                    <input type="date" class="form-input w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-gray-500 focus:border-gray-500" 
+                           name="dob" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <input type="text" class="form-input w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-gray-500 focus:border-gray-500" 
+                           name="address" placeholder="Complete Address" required>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                        <input type="text" class="form-input w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-gray-500 focus:border-gray-500" 
+                               name="city" placeholder="City" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" class="form-input w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-gray-500 focus:border-gray-500" 
+                               name="email" placeholder="Email Address" required>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Program</label>
+                    <select class="form-input w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-gray-500 focus:border-gray-500 text-gray-800" 
+                            name="program" required>
+                        <option value="" selected disabled>Select Program</option>
+                        <option value="BSIT">Bachelor of Science in Information Technology</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-submit w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-user-plus mr-2"></i> REGISTER NOW
+                </button>
+            </form>
+
+            {% if messages %}
+                <div class="px-6 pb-6">
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-gray-100 border-l-4 border-gray-500 text-gray-700{% endif %} p-4 rounded mb-3">
+                            <div class="flex items-center">
+                                <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} mr-2"></i>
+                                <div>{{ message }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <div class="bg-gray-50 px-6 py-4 text-center border-t border-gray-200">
+                <p class="text-sm text-gray-700">Already have an account? 
+                    <a href="{% url 'student_login' %}" class="text-gray-600 hover:text-gray-800 font-medium">Login here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
