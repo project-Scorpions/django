@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Hogwarts University | {% block title %}{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-link {
+            transition: all 0.2s ease;
+        }
+        .sidebar-link:hover {
+            background-color: #4b5563; /* gray-600 */
+            transform: translateX(3px);
+        }
+        .sidebar-link.active {
+            background-color: #374151; /* gray-700 */
+            border-left: 4px solid #9ca3af; /* gray-400 */
+        }
+        .admin-id-badge {
+            transition: all 0.2s ease;
+        }
+        .admin-id-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Sidebar Navigation -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-gray-800 text-gray-100 shadow-lg">
+        <div class="sidebar-header p-6 border-b border-gray-700">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-university text-3xl text-gray-300"></i>
+                <div>
+                    <h4 class="text-xl font-bold">Hogwarts University</h4>
+                    <p class="text-sm text-gray-300">Welcome, {{ request.session.admin_fname }}</p>
+                    <span class="admin-id-badge inline-block mt-1 bg-gray-700 text-gray-100 text-xs px-2 py-1 rounded-full">
+                        <i class="fas fa-user-shield mr-1"></i> Admin Portal
+                    </span>
+                </div>
+            </div>
+        </div>
+        <ul class="sidebar-nav p-4 space-y-1">
+            <li>
+                <a href="{% url 'admin_dashboard' %}" class="sidebar-link flex items-center p-3 rounded-lg {% if request.path == '/admin/dashboard/' %}active{% endif %}">
+                    <i class="fas fa-home mr-3 text-gray-300 w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'student_records' %}" class="sidebar-link flex items-center p-3 rounded-lg {% if request.path == '/admin/student-records/' %}active{% endif %}">
+                    <i class="fas fa-users mr-3 text-gray-300 w-5"></i>
+                    <span>Student Management</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'pending_enrollment' %}" class="sidebar-link flex items-center p-3 rounded-lg {% if request.path == '/admin/pending-enrollments/' %}active{% endif %}">
+                    <i class="fas fa-clipboard-list mr-3 text-gray-300 w-5"></i>
+                    <span>Pending Enrollments</span>
+                    <span class="ml-auto bg-gray-600 text-white text-xs px-2 py-1 rounded-full">New</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_courses' %}" class="sidebar-link flex items-center p-3 rounded-lg {% if request.path == '/admin/courses/' %}active{% endif %}">
+                    <i class="fas fa-book mr-3 text-gray-300 w-5"></i>
+                    <span>Courses</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_schedules' %}" class="sidebar-link flex items-center p-3 rounded-lg {% if request.path == '/admin/schedules/' %}active{% endif %}">
+                    <i class="fas fa-calendar-alt mr-3 text-gray-300 w-5"></i>
+                    <span>Schedules</span>
+                </a>
+            </li>
+            <li class="pt-4 mt-4 border-t border-gray-700">
+                <a href="{% url 'logout' %}" class="sidebar-link flex items-center p-3 rounded-lg text-gray-200 hover:bg-gray-700">
+                    <i class="fas fa-sign-out-alt mr-3 text-gray-300 w-5"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 min-h-screen">
+        <!-- Alerts -->
+        {% if messages %}
+        <div class="fixed top-4 right-4 z-50 space-y-3 w-96">
+            {% for message in messages %}
+            <div class="alert bg-{% if message.tags == 'error' %}gray-600{% else %}gray-800{% endif %} text-white px-6 py-4 rounded-lg shadow-lg flex justify-between items-start">
+                <div class="flex items-start">
+                    <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} mr-3 mt-1"></i>
+                    <div>{{ message }}</div>
+                </div>
+                <button type="button" class="text-white hover:text-gray-200 ml-4" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Page Content -->
+        <div class="p-8">
+            {% block content %}
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h1 class="text-2xl font-bold text-gray-800 mb-4">Admin Dashboard</h1>
+                <p class="text-gray-700">Select an option from the sidebar to get started.</p>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+
+    <script>
+        // Simple dismiss for alerts
+        document.querySelectorAll('[data-dismiss="alert"]').forEach(button => {
+            button.addEventListener('click', () => {
+                button.closest('.alert').remove();
+            });
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

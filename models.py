@@ -4,6 +4,24 @@ import string
 
 # Create your models here.
 
+class Program(models.Model):
+    prog_id = models.AutoField(primary_key=True)
+    prog_code = models.CharField("Program Code", max_length=10, unique=True)
+    prog_name = models.CharField("Program Name", max_length=100)
+    prog_description = models.TextField("Description", blank=True, null=True)
+    prog_duration = models.IntegerField("Duration (Years)", default=4)
+    prog_department = models.CharField("Department", max_length=100, default="College of Computer Studies")
+    prog_is_active = models.BooleanField("Is Active", default=True)
+
+    def __str__(self):
+        return f"{self.prog_code} - {self.prog_name}"
+    
+    class Meta:
+        db_table = 'program'
+        verbose_name = 'Program'
+        verbose_name_plural = 'Programs'
+
+
 class Professor(models.Model):
     prof_id = models.AutoField(primary_key=True)
     prof_fname = models.CharField("First Name", max_length=50)
@@ -36,6 +54,14 @@ class Course(models.Model):
         on_delete=models.CASCADE,
         db_column='prof_id'  
     )
+    prog = models.ForeignKey(
+        Program,
+        on_delete=models.CASCADE,
+        db_column='prog_id',
+        verbose_name="Program",
+        null=True,
+        blank=True
+    )
     crs_year_lvl = models.CharField("Year Level", max_length=50, choices=YEAR_LVL_CHOICES)
     crs_sem = models.CharField("Semester", max_length=50, choices=SEMESTER_CHOICES)
     crs_name = models.CharField("Course Name", max_length=200)
@@ -56,6 +82,14 @@ class Sections(models.Model):
     sec_id = models.AutoField(primary_key=True)
     section_name = models.CharField("Section Name", max_length=100)
     sec_capacity = models.IntegerField("Section Capacity")
+    prog = models.ForeignKey(
+        Program,
+        on_delete=models.CASCADE,
+        db_column='prog_id',
+        verbose_name="Program",
+        null=True,
+        blank=True
+    )
     year_level = models.CharField("For Year Level", max_length=50,
         choices=[
             ("First Year", "First Year"),
@@ -67,7 +101,8 @@ class Sections(models.Model):
     )
 
     def __str__(self):
-        return f"{self.section_name} (Capacity: {self.sec_capacity})"
+        prog_code = self.prog.prog_code if self.prog else "N/A"
+        return f"{prog_code} {self.section_name} (Capacity: {self.sec_capacity})"
     
     @property
     def first_sem_enrolled_count(self):
@@ -160,10 +195,7 @@ class Admin(models.Model):
 
 
 class Student(models.Model):
-    PROGRAM_CHOICES = [
-        ('BSIT', 'Bachelor of Science in Information Technology'),
-    ]
-
+    # Remove PROGRAM_CHOICES since we'll use the Program model
     GENDER_CHOICES = [
         ('Male', 'Male'),
         ('Female', 'Female'),
@@ -171,6 +203,14 @@ class Student(models.Model):
 
     stud_id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, db_column='user_id')
+    prog = models.ForeignKey(
+        Program,
+        on_delete=models.PROTECT,
+        db_column='prog_id',
+        verbose_name="Program",
+        null=True,
+        blank=True
+    )
     stud_fname = models.CharField(max_length=50)
     stud_lname = models.CharField(max_length=50)
     stud_mname = models.CharField(max_length=50, blank=True, null=True)
@@ -180,14 +220,21 @@ class Student(models.Model):
     stud_address = models.TextField()
     stud_city_add = models.TextField()
     stud_email = models.EmailField()
+    # Keep the old field for backward compatibility
     stud_program = models.CharField(
         max_length=100,
-        choices=PROGRAM_CHOICES,
-        default='BSIT' 
+        default='BSIT',
+        help_text="Legacy field - use prog field instead"
     )
 
     def __str__(self):
         return f"{self.stud_fname} {self.stud_lname}"
+    
+    def get_program_display(self):
+        """Get program display from the Program model or fallback to stud_program"""
+        if self.prog:
+            return f"{self.prog.prog_code} - {self.prog.prog_name}"
+        return self.stud_program
 
     class Meta:
         db_table = 'student'

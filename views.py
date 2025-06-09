@@ -7,7 +7,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.db.models import Q, F, Count, Subquery, OuterRef
 from datetime import datetime
-
+from .models import Program, Course
 
 def student_register(request):
     if request.method == 'POST':
@@ -829,3 +829,38 @@ def dashboard(request):
         return redirect('student_home')
     else:
         return redirect('student_login')
+    
+def admin_courses(request):
+    # Get filter parameters
+    selected_year_level = request.GET.get('year_level', 'First Year')
+    selected_semester = request.GET.get('semester', 'First Semester')
+    selected_program = request.GET.get('program', '')
+    
+    # Get all programs for the filter dropdown
+    available_programs = Program.objects.filter(prog_is_active=True).order_by('prog_code')
+    
+    # Start with all courses
+    courses = Course.objects.all()
+    
+    # Apply filters
+    if selected_year_level:
+        courses = courses.filter(crs_year_lvl=selected_year_level)
+    
+    if selected_semester:
+        courses = courses.filter(crs_sem=selected_semester)
+    
+    if selected_program:
+        courses = courses.filter(prog_id=selected_program)
+    
+    # Order by course code
+    courses = courses.select_related('prof', 'prog').prefetch_related('crs_prerequisite').order_by('crs_code')
+    
+    context = {
+        'courses': courses,
+        'selected_year_level': selected_year_level,
+        'selected_semester': selected_semester,
+        'selected_program': selected_program,
+        'available_programs': available_programs,
+    }
+    
+    return render(request, 'main_app/admin_courses.html', context)

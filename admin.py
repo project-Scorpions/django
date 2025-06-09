@@ -1,6 +1,21 @@
 from django.contrib import admin
-from .models import Professor, Course, Sections, Student, User, AcademicYear, Schedule, Admin, EnrollDetail, Enrollment
+from .models import Program, Professor, Course, Sections, Student, User, AcademicYear, Schedule, Admin, EnrollDetail, Enrollment
 from django.db.models import Count, Q
+
+class ProgramAdmin(admin.ModelAdmin):
+    list_display = ('prog_id', 'prog_code', 'prog_name', 'prog_department', 'prog_duration', 'prog_is_active', 'student_count', 'course_count')
+    list_filter = ('prog_department', 'prog_is_active', 'prog_duration')
+    search_fields = ('prog_code', 'prog_name', 'prog_department')
+    ordering = ('prog_code',)
+    
+    def student_count(self, obj):
+        return obj.student_set.count()
+    student_count.short_description = 'Students'
+    
+    def course_count(self, obj):
+        return obj.course_set.count()
+    course_count.short_description = 'Courses'
+
 
 class ProfessorAdmin(admin.ModelAdmin):
     list_display = ('prof_id', 'prof_fname', 'prof_lname', 'prof_room')
@@ -9,9 +24,9 @@ class ProfessorAdmin(admin.ModelAdmin):
 
 
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('crs_code', 'crs_name', 'crs_year_lvl', 'crs_sem', 'crs_unit', 'crs_lec_hours', 'crs_lab_hours', 'display_prerequisites', 'prof', 'prof_room')
-    list_filter = ('crs_year_lvl', 'crs_sem', 'prof')
-    search_fields = ('crs_code', 'crs_name', 'prof__prof_fname', 'prof__prof_lname')
+    list_display = ('crs_code', 'crs_name', 'prog', 'crs_year_lvl', 'crs_sem', 'crs_unit', 'crs_lec_hours', 'crs_lab_hours', 'display_prerequisites', 'prof', 'prof_room')
+    list_filter = ('prog', 'crs_year_lvl', 'crs_sem', 'prof')
+    search_fields = ('crs_code', 'crs_name', 'prof__prof_fname', 'prof__prof_lname', 'prog__prog_code')
 
     def prof_room(self, obj):
         return obj.prof.prof_room
@@ -26,11 +41,11 @@ class CourseAdmin(admin.ModelAdmin):
 
 
 class SectionAdmin(admin.ModelAdmin):
-    list_display = ('sec_id', 'section_name', 'year_level', 'sec_capacity', 
+    list_display = ('sec_id', 'section_name', 'prog', 'year_level', 'sec_capacity', 
                    'get_first_sem_enrolled', 'get_first_sem_available',
                    'get_second_sem_enrolled', 'get_second_sem_available')
-    list_filter = ('year_level',)
-    search_fields = ('section_name',)
+    list_filter = ('prog', 'year_level')
+    search_fields = ('section_name', 'prog__prog_code')
     
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -78,8 +93,8 @@ class SectionAdmin(admin.ModelAdmin):
 class StudentAdmin(admin.ModelAdmin):
     list_display = ('stud_id', 'full_name','stud_mname', 'stud_gender','stud_contact_num','stud_dob',
                     'stud_email','get_program_display','stud_address','stud_city_add','user_link')
-    list_filter = ('stud_gender', 'stud_city_add')
-    search_fields = ('stud_lname', 'stud_id')
+    list_filter = ('prog', 'stud_gender', 'stud_city_add')
+    search_fields = ('stud_lname', 'stud_id', 'prog__prog_code')
     ordering = ('stud_id',)
 
     def full_name(self, obj):
@@ -88,7 +103,7 @@ class StudentAdmin(admin.ModelAdmin):
     full_name.admin_order_field = 'stud_lname'
 
     def get_program_display(self, obj):
-        return obj.get_stud_program_display()
+        return obj.get_program_display()
     get_program_display.short_description = 'Program'
 
     def user_link(self, obj):
@@ -119,7 +134,7 @@ class AcademicYearAdmin(admin.ModelAdmin):
 
 class ScheduleAdmin(admin.ModelAdmin):
     list_display = (
-        'mis_code',  # Changed from sched_id to mis_code
+        'mis_code',
         'course_code',
         'course_name',  
         'section_name',
@@ -127,14 +142,15 @@ class ScheduleAdmin(admin.ModelAdmin):
         'professor_name',
         'duration'
     )
-    list_filter = ('sched_day', 'sec', 'crs')
+    list_filter = ('sched_day', 'sec', 'crs', 'sec__prog')
     search_fields = (
-        'mis_code',  # Added mis_code to search fields
+        'mis_code',
         'crs__crs_code',
         'crs__crs_name', 
-        'sec__section_name'
+        'sec__section_name',
+        'sec__prog__prog_code'
     )
-    ordering = ('mis_code',)  # Changed from sched_id to mis_code
+    ordering = ('mis_code',)
     
     def course_code(self, obj):
         return obj.crs.crs_code
@@ -147,7 +163,8 @@ class ScheduleAdmin(admin.ModelAdmin):
     course_name.admin_order_field = 'crs__crs_name'
 
     def section_name(self, obj):
-        return obj.sec.section_name
+        prog_code = obj.sec.prog.prog_code if obj.sec.prog else "N/A"
+        return f"{prog_code} {obj.sec.section_name}"
     section_name.short_description = 'Section'
     section_name.admin_order_field = 'sec__section_name'
 
@@ -166,13 +183,17 @@ class ScheduleAdmin(admin.ModelAdmin):
 
 
 class EnrollmentAdmin(admin.ModelAdmin):
-    list_display = ('enroll_id', 'student_info', 'acad_year', 'enroll_year_lvl', 'enroll_sem', 'enroll_status', 'enroll_date')
-    list_filter = ('enroll_status', 'enroll_year_lvl', 'enroll_sem')
-    search_fields = ('stud__stud_fname', 'stud__stud_lname', 'stud__stud_id')
+    list_display = ('enroll_id', 'student_info', 'student_program', 'acad_year', 'enroll_year_lvl', 'enroll_sem', 'enroll_status', 'enroll_date')
+    list_filter = ('enroll_status', 'enroll_year_lvl', 'enroll_sem', 'stud__prog')
+    search_fields = ('stud__stud_fname', 'stud__stud_lname', 'stud__stud_id', 'stud__prog__prog_code')
     
     def student_info(self, obj):
         return f"{obj.stud.stud_id} - {obj.stud.stud_fname} {obj.stud.stud_lname}"
     student_info.short_description = 'Student'
+    
+    def student_program(self, obj):
+        return obj.stud.get_program_display()
+    student_program.short_description = 'Program'
 
 
 class EnrollDetailAdmin(admin.ModelAdmin):
@@ -188,6 +209,7 @@ class EnrollDetailAdmin(admin.ModelAdmin):
 
 
 # Register your models here
+admin.site.register(Program, ProgramAdmin)
 admin.site.register(Professor, ProfessorAdmin)
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Sections, SectionAdmin)
